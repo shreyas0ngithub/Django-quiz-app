@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quiz App{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'quiz-blue': '#3b82f6',
+                        'quiz-green': '#10b981',
+                        'quiz-red': '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- nav section  -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="{% url 'quiz:home' %}" class="text-2xl font-bold text-quiz-blue">QuizApp</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'quiz:dashboard' %}" class="text-gray-700 hover:text-quiz-blue transition duration-200">Dashboard</a>
+                        <a href="{% url 'quiz:quiz_list' %}" class="text-gray-700 hover:text-quiz-blue transition duration-200">Quizzes</a>
+                        <a href="{% url 'quiz:history' %}" class="text-gray-700 hover:text-quiz-blue transition duration-200">History</a>
+                        <div class="relative group">
+                            <button class="flex items-center text-gray-700 hover:text-quiz-blue transition duration-200">
+                                <span>{{ user.username }}</span>
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                <a href="{% url 'quiz:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="text-quiz-blue hover:text-blue-800 transition duration-200">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="bg-quiz-blue text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- end nav section -->
+
+    <main class="max-w-7xl mx-auto py-8 px-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    
+    <footer class="bg-gray-800 text-white text-center py-4 mt-auto">
+        <p>&copy; 2025 Quiz App. Built with Django & Tailwind CSS.</p>
+    </footer>
+</body>
+</html>

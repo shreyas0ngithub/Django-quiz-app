@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Results - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Results Header -->
+    <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center
+                    {% if result.passed %}bg-quiz-green{% else %}bg-quiz-red{% endif %}">
+            {% if result.passed %}
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            {% else %}
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            {% endif %}
+        </div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            {% if result.passed %}Congratulations!{% else %}Good Effort!{% endif %}
+        </h1>
+        <p class="text-xl text-gray-600">You have completed "{{ quiz.title }}"</p>
+    </div>
+
+    <!-- Score Card -->
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+        <div class="text-center">
+            <div class="text-6xl font-bold mb-2 
+                        {% if result.passed %}text-quiz-green{% else %}text-quiz-red{% endif %}">
+                {{ percentage|floatformat:1 }}%
+            </div>
+            <div class="text-2xl text-gray-700 mb-4">
+                {{ result.score }} out of {{ result.total_questions }} correct
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+                <div class="h-3 rounded-full transition-all duration-1000 ease-out
+                            {% if result.passed %}bg-quiz-green{% else %}bg-quiz-red{% endif %}" 
+                     style="width: {{ percentage }}%"></div>
+            </div>
+            
+            <div class="text-lg font-semibold 
+                        {% if result.passed %}text-quiz-green{% else %}text-quiz-red{% endif %}">
+                {% if result.passed %}
+                    ✅ Passed (60% required)
+                {% else %}
+                    ❌ Not Passed (60% required)
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Details -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Quiz Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500">Quiz Title:</span>
+                <div class="font-medium text-gray-800">{{ quiz.title }}</div>
+            </div>
+            <div>
+                <span class="text-gray-500">Completed On:</span>
+                <div class="font-medium text-gray-800">{{ result.completed_at|date:"M d, Y H:i" }}</div>
+            </div>
+            <div>
+                <span class="text-gray-500">Total Questions:</span>
+                <div class="font-medium text-gray-800">{{ result.total_questions }}</div>
+            </div>
+            <div>
+                <span class="text-gray-500">Your Score:</span>
+                <div class="font-medium text-gray-800">{{ result.score }} correct</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Message -->
+    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+        <div class="text-center">
+            {% if percentage >= 90 %}
+                <h4 class="text-lg font-semibold text-quiz-green mb-2">Excellent Work! 🌟</h4>
+                <p class="text-gray-600">Outstanding performance! You've mastered this topic.</p>
+            {% elif percentage >= 80 %}
+                <h4 class="text-lg font-semibold text-quiz-green mb-2">Great Job! 👏</h4>
+                <p class="text-gray-600">Very good understanding of the material. Keep it up!</p>
+            {% elif percentage >= 70 %}
+                <h4 class="text-lg font-semibold text-quiz-blue mb-2">Well Done! 👍</h4>
+                <p class="text-gray-600">Good grasp of the concepts. A little more study and you'll excel!</p>
+            {% elif percentage >= 60 %}
+                <h4 class="text-lg font-semibold text-quiz-blue mb-2">You Passed! ✓</h4>
+                <p class="text-gray-600">You've met the minimum requirements. Consider reviewing the material for better understanding.</p>
+            {% else %}
+                <h4 class="text-lg font-semibold text-quiz-red mb-2">Keep Learning! 📚</h4>
+                <p class="text-gray-600">Don't worry! Review the material and try again. Every attempt helps you learn.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="{% url 'quiz:quiz_list' %}" 
+           class="bg-quiz-blue text-white px-6 py-3 rounded-lg text-center hover:bg-blue-700 transition duration-200">
+            Take Another Quiz
+        </a>
+        <a href="{% url 'quiz:take_quiz' quiz.id %}" 
+           class="bg-gray-500 text-white px-6 py-3 rounded-lg text-center hover:bg-gray-600 transition duration-200">
+            Retake This Quiz
+        </a>
+        <a href="{% url 'quiz:home' %}" 
+           class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg text-center hover:bg-gray-50 transition duration-200">
+            Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

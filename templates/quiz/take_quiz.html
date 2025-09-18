@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }} - Quiz App{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Quiz Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-3xl font-bold text-gray-800">{{ quiz.title }}</h1>
+            {% if quiz.time_limit %}
+            <div class="flex items-center text-quiz-blue font-semibold">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Time Limit: {{ quiz.time_limit }} minutes
+            </div>
+            {% endif %}
+        </div>
+        <p class="text-gray-600 mb-4">{{ quiz.description }}</p>
+        <div class="flex items-center text-sm text-gray-500">
+            <span class="flex items-center mr-6">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ questions.count }} Question{{ questions.count|pluralize }}
+            </span>
+            <span class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Created by {{ quiz.created_by.username }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form method="post" id="quizForm">
+        {% csrf_token %}
+        
+        {% for question in questions %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                    Question {{ forloop.counter }} of {{ questions.count }}
+                </h3>
+                <p class="text-gray-700 text-lg">{{ question.question_text }}</p>
+                {% if question.points > 1 %}
+                <p class="text-sm text-gray-500 mt-2">Worth {{ question.points }} point{{ question.points|pluralize }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="space-y-3">
+                {% for answer in question.answers.all %}
+                <label class="flex items-start p-3 rounded-lg border border-gray-200 hover:border-quiz-blue hover:bg-blue-50 cursor-pointer transition duration-200">
+                    <input 
+                        type="radio" 
+                        name="question_{{ question.id }}" 
+                        value="{{ answer.id }}"
+                        class="mt-1 mr-3 text-quiz-blue focus:ring-quiz-blue"
+                        required
+                    >
+                    <span class="text-gray-700">{{ answer.answer_text }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Submit Button -->
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <button 
+                type="submit" 
+                class="bg-quiz-green text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition duration-200 transform hover:scale-105"
+                onclick="return confirm('Are you sure you want to submit your quiz? You cannot change your answers after submission.')"
+            >
+                Submit Quiz
+            </button>
+            <p class="text-sm text-gray-500 mt-2">Make sure you've answered all questions before submitting</p>
+        </div>
+    </form>
+</div>
+
+<script>
+// Optional: Add timer functionality if time limit is set
+{% if quiz.time_limit %}
+let timeLeft = {{ quiz.time_limit }} * 60; // Convert to seconds
+let timerDisplay = document.createElement('div');
+timerDisplay.className = 'fixed top-20 right-4 bg-white shadow-lg rounded-lg p-4 border-l-4 border-quiz-red z-50';
+timerDisplay.innerHTML = '<div class="flex items-center"><svg class="w-5 h-5 text-quiz-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span id="timer" class="font-semibold text-gray-800"></span></div>';
+document.body.appendChild(timerDisplay);
+
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft <= 0) {
+        alert('Time is up! Submitting your quiz...');
+        document.getElementById('quizForm').submit();
+        return;
+    }
+    
+    if (timeLeft <= 300) { // Last 5 minutes
+        timerDisplay.className = 'fixed top-20 right-4 bg-red-50 shadow-lg rounded-lg p-4 border-l-4 border-quiz-red z-50';
+    }
+    
+    timeLeft--;
+}
+
+updateTimer();
+setInterval(updateTimer, 1000);
+{% endif %}
+</script>
+{% endblock %}

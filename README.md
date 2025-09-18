@@ -1,4 +1,4 @@
-echo "# Django Quiz App 🎯
+Django Quiz App 🎯
 
 A modern, interactive quiz application built with Django and Tailwind CSS.
 
